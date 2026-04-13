@@ -1,0 +1,30 @@
+# 基于思维树 (ToT) 的数独自动求解器
+
+本项目通过 Python 编程实现了 **Tree of Thoughts (ToT)** 算法，并成功解决了复杂数独题目。
+
+---
+
+## 1. ToT 实现方法与代码逻辑说明
+
+在本项目中，我们将数独求解过程建模为一棵“思维树”的搜索与评估过程，这比传统的盲目搜索更具逻辑性。
+
+### 核心实现逻辑：
+* **思维节点 (Thought Nodes)**：将数独中的每一个空格定义为一个待决策的节点。
+* **分支生成 (Thought Generation)**：在每个节点处，系统会尝试生成 1-9 共九种可能的数字分支。
+* **状态评估 (State Evaluation)**：这是 ToT 的核心。通过 `is_valid` 函数作为评估器，在填入数字后立即判断该行、列、宫格是否冲突。如果评估不通过，该思维分支将被判定为无效。
+* **回溯与剪枝 (Backtracking)**：当某条思维路径走到最后发现无法完成目标时，系统会回溯到上一个节点，撤销当前决策并尝试其他分支。这模拟了人类“走不通就回头”的思考过程。
+
+### 关键代码片段解析：
+```python
+def solve(self):
+    for r in range(9):
+        for c in range(9):
+            if self.board[r, c] == 0:  # 找到思维决策点
+                for k in range(1, 10): # 生成 9 个思维分支
+                    if self.is_valid(r, c, k): # 评估分支可行性
+                        self.board[r, c] = k
+                        if self.solve(): # 深入探索树的下一层
+                            return True
+                        self.board[r, c] = 0 # 回溯：剪掉无效路径
+                return False
+    return True
